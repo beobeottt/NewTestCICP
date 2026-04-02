@@ -44,18 +44,34 @@ export class DocumentsService {
     return this.http.get<DocumentDto>(`${this.apiUrl}/${id}`);
   }
 
-
-  create(doc: CreateDocumentDto): Observable<DocumentDto> {
-    return this.http.post<DocumentDto>(this.apiUrl, doc);
+  private toFormData(
+    doc: CreateDocumentDto | UpdateDocumentDto,
+    file?: File | null
+  ): FormData {
+    const fd = new FormData();
+    if (doc.title != null) fd.append('title', String(doc.title));
+    if (doc.description != null) fd.append('description', String(doc.description));
+    if (doc.content != null) fd.append('content', String(doc.content));
+    if (doc.role != null) fd.append('role', String(doc.role));
+    if (doc.createBy != null) fd.append('createBy', String(doc.createBy));
+    if (file) fd.append('file', file);
+    return fd;
   }
 
   createWithFile(formData: FormData): Observable<DocumentDto> {
     return this.http.post<DocumentDto>(`${this.apiUrl}/with-file`, formData);
   }
 
+  // Backend create endpoint hiện là /with-file (FromForm), nên create luôn dùng FormData
+  create(doc: CreateDocumentDto, file?: File | null): Observable<DocumentDto> {
+    const fd = this.toFormData(doc, file);
+    return this.http.post<DocumentDto>(`${this.apiUrl}/with-file`, fd);
+  }
 
-  update(id: string, doc: UpdateDocumentDto): Observable<DocumentDto> {
-    return this.http.put<DocumentDto>(`${this.apiUrl}/${id}`, doc);
+  // Backend update endpoint là FromForm => update phải dùng FormData
+  update(id: string, doc: UpdateDocumentDto, file?: File | null): Observable<DocumentDto> {
+    const fd = this.toFormData(doc, file);
+    return this.http.put<DocumentDto>(`${this.apiUrl}/${id}`, fd);
   }
 
 

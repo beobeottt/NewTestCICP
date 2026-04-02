@@ -114,28 +114,17 @@ export class IncomingDocumentsPage implements OnInit {
 
   const payload = this.form.getRawValue();
 
-  const fd = new FormData();
-
-  fd.append('title', payload.title);
-  fd.append('description', payload.description || '');
-  fd.append('content', payload.content || '');
-  fd.append('role', payload.role.toString());
-  fd.append('createBy', payload.createBy);
-
-  if (this.selectedFile) {
-    fd.append('file', this.selectedFile);
-  }
-
-  this.docsService.createWithFile(fd).subscribe({
-    next: () => {
+  this.docsService.create(payload, this.selectedFile).subscribe({
+    next: (created) => {
       this.closeModal();
-      this.load();
+      // nhanh hơn: không reload toàn bộ, chỉ thêm dòng mới
+      this.documents = [created, ...this.documents];
+      this.cdr.detectChanges();
     },
     error: () => {
       this.errorMessage = 'Tạo thất bại';
     },
   });
-  console.log(payload);
 }
 
   onFileChange(e: Event) {

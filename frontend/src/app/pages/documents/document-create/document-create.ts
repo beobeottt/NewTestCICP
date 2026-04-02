@@ -34,7 +34,7 @@ export class DocumentCreate {
     this.isSubmitting = true;
 
     const payload = this.form.getRawValue();
-    this.docs.create(payload).subscribe({
+    this.docs.create(payload, null).subscribe({
       next: (created) => {
         this.router.navigateByUrl(`/documents/${created.id}`);
       },

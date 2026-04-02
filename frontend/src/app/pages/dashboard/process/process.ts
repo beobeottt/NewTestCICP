@@ -141,7 +141,8 @@ load(): void {
 
   setRole(doc: DocumentDto, role: DocumentRole): void {
 
-    this.docsService.update(doc.id, { role }).subscribe({
+    // Backend update expects multipart/form-data, so always use FormData update
+    this.docsService.update(doc.id, { ...doc, role }, null).subscribe({
 
       next: (updated) => {
 
@@ -304,7 +305,7 @@ updateDocument(): void {
     createBy: raw.createBy     
   };
 
-  this.docsService.update(this.selectedDocument.id, data).subscribe({
+  this.docsService.update(this.selectedDocument.id, data, this.selectedFile).subscribe({
     next: (updated) => {
       this.documents = this.documents.map(d =>
         d.id === updated.id ? { ...d, ...updated } : d
