@@ -140,8 +140,6 @@ load(): void {
 
 
   setRole(doc: DocumentDto, role: DocumentRole): void {
-
-    // Backend update expects multipart/form-data, so always use FormData update
     this.docsService.update(
       doc.id,
       {
@@ -234,8 +232,6 @@ updateDocument(): void {
   if (!this.selectedDocument) return;
 
   const raw = this.form.getRawValue();
-
-  // Merge dữ liệu cũ + dữ liệu mới từ form
   const payload: UpdateDocumentDto = {
     ...this.selectedDocument,
     title: raw.title,
@@ -244,12 +240,9 @@ updateDocument(): void {
     role: this.roles.indexOf(raw.role),
     createBy: raw.createBy
   };
-
-  // Gọi update giống create
   this.docsService.update(this.selectedDocument.id, payload, this.selectedFile)
     .subscribe({
       next: (updated) => {
-        // Update UI: giữ tất cả dữ liệu cũ + mới
         this.documents = this.documents.map(d =>
           d.id === updated.id ? { ...d, ...updated } : d
         );
@@ -267,14 +260,14 @@ updateDocument(): void {
     });
 }
 
-private afterUpdate(updated: DocumentDto) {
-  this.documents = this.documents.map(d =>
-    d.id === updated.id ? { ...d, ...updated } : d
-  );
-  this.showModal = false;
-  this.selectedFile = null;
-  this.cdr.detectChanges();
-}
+// private afterUpdate(updated: DocumentDto) {
+//   this.documents = this.documents.map(d =>
+//     d.id === updated.id ? { ...d, ...updated } : d
+//   );
+//   this.showModal = false;
+//   this.selectedFile = null;
+//   this.cdr.detectChanges();
+// }
   onFileSelected(event: any) {
 
     const file = event.target.files[0];

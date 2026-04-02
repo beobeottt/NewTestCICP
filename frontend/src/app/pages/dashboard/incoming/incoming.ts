@@ -117,7 +117,6 @@ export class IncomingDocumentsPage implements OnInit {
   this.docsService.create(payload, this.selectedFile).subscribe({
     next: (created) => {
       this.closeModal();
-      // nhanh hơn: không reload toàn bộ, chỉ thêm dòng mới
       this.documents = [created, ...this.documents];
       this.cdr.detectChanges();
     },
