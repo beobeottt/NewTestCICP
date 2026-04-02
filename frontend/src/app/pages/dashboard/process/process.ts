@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
-import { DocumentsService, DocumentDto, DocumentRole } from '../../../services/documents';
+import { DocumentsService, DocumentDto, DocumentRole, UpdateDocumentDto } from '../../../services/documents';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../environments/environment';
@@ -230,108 +230,50 @@ load(): void {
     }
   }
 
-//   updateDocument(): void {
-
-//   if (!this.selectedDocument) return;
-
-//   const raw = this.form.getRawValue();
-
-//   const data = {
-//     id: this.selectedDocument.id,
-//     ...raw,
-//     role: this.roles.indexOf(raw.role)
-//   };
-
-
-//   console.log("UPDATE DATA =", data);
-
-//   console.log(this.selectedDocument.id);
-
-//   this.docsService.update(this.selectedDocument.id, data).subscribe({
-    
-//     next: () => {
-
-//       this.showModal = false;
-
-//       this.loadDocument(this.docId);
-
-//     },
-//     error: (err) => {
-
-//       console.error("UPDATE ERROR", err);
-
-//       alert("Không thể cập nhật document");
-
-//     }
-//   });
-//   this.closeModal();
-//   this.load();
-// }
-
-// updateDocument(): void {
-
-//   if (!this.selectedDocument) return;
-
-//   const raw = this.form.getRawValue();
-
-//   const data = {
-//     id: this.selectedDocument.id,
-//     ...raw,
-//     role: this.roles.indexOf(raw.role)
-//   };
-
-//   this.docsService.update(this.selectedDocument.id, data).subscribe({
-    
-//     next: (updated) => {
-//       this.documents = this.documents.map(d =>
-//         d.id === this.selectedDocument!.id ? { ...d, ...updated } : d
-//       );
-
-//       this.showModal = false;
-//       this.selectedFile = null;
-
-//       this.cdr.detectChanges();
-//     },
-
-//     error: (err) => {
-//       console.error(err);
-//       alert("Không thể cập nhật document");
-//     }
-//   });
-// }
-
 updateDocument(): void {
   if (!this.selectedDocument) return;
 
   const raw = this.form.getRawValue();
 
-
-  const data: Partial<DocumentDto> = {
-    ...this.selectedDocument,  
-    title: raw.title,          
+  // Merge dữ liệu cũ + dữ liệu mới từ form
+  const payload: UpdateDocumentDto = {
+    ...this.selectedDocument,
+    title: raw.title,
     description: raw.description,
     content: raw.content,
-    role: this.roles.indexOf(raw.role), 
-    createBy: raw.createBy     
+    role: this.roles.indexOf(raw.role),
+    createBy: raw.createBy
   };
 
-  this.docsService.update(this.selectedDocument.id, data, this.selectedFile).subscribe({
-    next: (updated) => {
-      this.documents = this.documents.map(d =>
-        d.id === updated.id ? { ...d, ...updated } : d
-      );
+  // Gọi update giống create
+  this.docsService.update(this.selectedDocument.id, payload, this.selectedFile)
+    .subscribe({
+      next: (updated) => {
+        // Update UI: giữ tất cả dữ liệu cũ + mới
+        this.documents = this.documents.map(d =>
+          d.id === updated.id ? { ...d, ...updated } : d
+        );
 
-      this.showModal = false;
-      this.selectedFile = null; 
-      this.cdr.detectChanges();
+        this.showModal = false;
+        this.selectedFile = null;
+        this.cdr.detectChanges();
 
-      console.log('Document updated successfully', updated);
-    },
-    error: (err) => {
-      console.error('Update error', err);
-      alert('Không thể cập nhật document');
-    }
-  });
+        console.log('Document updated successfully', updated);
+      },
+      error: (err) => {
+        console.error('Update error', err);
+        alert('Không thể cập nhật document');
+      }
+    });
+}
+
+private afterUpdate(updated: DocumentDto) {
+  this.documents = this.documents.map(d =>
+    d.id === updated.id ? { ...d, ...updated } : d
+  );
+  this.showModal = false;
+  this.selectedFile = null;
+  this.cdr.detectChanges();
 }
   onFileSelected(event: any) {
 

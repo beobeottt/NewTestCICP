@@ -49,34 +49,34 @@ export class DocumentsService {
     file?: File | null
   ): FormData {
     const fd = new FormData();
-    // Backend binds missing FromForm strings to "", so ALWAYS send these keys to avoid wiping fields.
     fd.append('title', String(doc.title ?? ''));
     fd.append('description', String(doc.description ?? ''));
     fd.append('content', String(doc.content ?? ''));
-    // role can be "Pending"/"Approved"/"Rejected" or 0/1/2
     fd.append('role', String(doc.role ?? 'Pending'));
     fd.append('createBy', String(doc.createBy ?? ''));
     if (file) fd.append('file', file);
     return fd;
   }
 
+
   createWithFile(formData: FormData): Observable<DocumentDto> {
     return this.http.post<DocumentDto>(`${this.apiUrl}/with-file`, formData);
   }
 
-  // Backend create endpoint hiện là /with-file (FromForm), nên create luôn dùng FormData
   create(doc: CreateDocumentDto, file?: File | null): Observable<DocumentDto> {
     const fd = this.toFormData(doc, file);
     return this.http.post<DocumentDto>(`${this.apiUrl}/with-file`, fd);
   }
 
-  // Backend update endpoint là FromForm => update phải dùng FormData
-  update(id: string, doc: UpdateDocumentDto, file?: File | null): Observable<DocumentDto> {
-    const fd = this.toFormData(doc, file);
-    return this.http.put<DocumentDto>(`${this.apiUrl}/${id}`, fd);
+  update(id: string, doc: Partial<UpdateDocumentDto>, file?: File | null): Observable<DocumentDto> {
+    let payload: FormData | Partial<UpdateDocumentDto> = doc;
+
+    if (file) {
+      payload = this.toFormData(doc, file);
+    }
+
+    return this.http.put<DocumentDto>(`${this.apiUrl}/${id}`, payload);
   }
-
-
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
