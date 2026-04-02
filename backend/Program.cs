@@ -108,4 +108,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseCors("AllowAngular");
+app.Urls.Add("http://0.0.0.0:80");
 app.Run("http://0.0.0.0:5000");
