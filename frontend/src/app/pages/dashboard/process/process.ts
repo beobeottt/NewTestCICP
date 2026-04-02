@@ -219,45 +219,7 @@ load(): void {
     }
   }
 
-//   updateDocument(): void {
-
-//   if (!this.selectedDocument) return;
-
-//   const raw = this.form.getRawValue();
-
-//   const data = {
-//     id: this.selectedDocument.id,
-//     ...raw,
-//     role: this.roles.indexOf(raw.role)
-//   };
-
-
-//   console.log("UPDATE DATA =", data);
-
-//   console.log(this.selectedDocument.id);
-
-//   this.docsService.update(this.selectedDocument.id, data).subscribe({
-    
-//     next: () => {
-
-//       this.showModal = false;
-
-//       this.loadDocument(this.docId);
-
-//     },
-//     error: (err) => {
-
-//       console.error("UPDATE ERROR", err);
-
-//       alert("Không thể cập nhật document");
-
-//     }
-//   });
-//   this.closeModal();
-//   this.load();
-// }
-
-updateDocument(): void {
+  updateDocument(): void {
 
   if (!this.selectedDocument) return;
 
@@ -269,25 +231,63 @@ updateDocument(): void {
     role: this.roles.indexOf(raw.role)
   };
 
+
+  console.log("UPDATE DATA =", data);
+
+  console.log(this.selectedDocument.id);
+
   this.docsService.update(this.selectedDocument.id, data).subscribe({
     
-    next: (updated) => {
-      this.documents = this.documents.map(d =>
-        d.id === this.selectedDocument!.id ? { ...d, ...updated } : d
-      );
+    next: () => {
 
       this.showModal = false;
-      this.selectedFile = null;
 
-      this.cdr.detectChanges();
+      this.loadDocument(this.docId);
+
     },
-
     error: (err) => {
-      console.error(err);
+
+      console.error("UPDATE ERROR", err);
+
       alert("Không thể cập nhật document");
+
     }
   });
+  this.closeModal();
+  this.load();
 }
+
+// updateDocument(): void {
+
+//   if (!this.selectedDocument) return;
+
+//   const raw = this.form.getRawValue();
+
+//   const data = {
+//     id: this.selectedDocument.id,
+//     ...raw,
+//     role: this.roles.indexOf(raw.role)
+//   };
+
+//   this.docsService.update(this.selectedDocument.id, data).subscribe({
+    
+//     next: (updated) => {
+//       this.documents = this.documents.map(d =>
+//         d.id === this.selectedDocument!.id ? { ...d, ...updated } : d
+//       );
+
+//       this.showModal = false;
+//       this.selectedFile = null;
+
+//       this.cdr.detectChanges();
+//     },
+
+//     error: (err) => {
+//       console.error(err);
+//       alert("Không thể cập nhật document");
+//     }
+//   });
+// }
   onFileSelected(event: any) {
 
     const file = event.target.files[0];
