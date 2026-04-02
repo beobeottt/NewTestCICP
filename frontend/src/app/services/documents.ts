@@ -49,11 +49,13 @@ export class DocumentsService {
     file?: File | null
   ): FormData {
     const fd = new FormData();
-    if (doc.title != null) fd.append('title', String(doc.title));
-    if (doc.description != null) fd.append('description', String(doc.description));
-    if (doc.content != null) fd.append('content', String(doc.content));
-    if (doc.role != null) fd.append('role', String(doc.role));
-    if (doc.createBy != null) fd.append('createBy', String(doc.createBy));
+    // Backend binds missing FromForm strings to "", so ALWAYS send these keys to avoid wiping fields.
+    fd.append('title', String(doc.title ?? ''));
+    fd.append('description', String(doc.description ?? ''));
+    fd.append('content', String(doc.content ?? ''));
+    // role can be "Pending"/"Approved"/"Rejected" or 0/1/2
+    fd.append('role', String(doc.role ?? 'Pending'));
+    fd.append('createBy', String(doc.createBy ?? ''));
     if (file) fd.append('file', file);
     return fd;
   }

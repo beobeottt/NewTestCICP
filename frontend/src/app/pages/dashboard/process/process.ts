@@ -142,7 +142,17 @@ load(): void {
   setRole(doc: DocumentDto, role: DocumentRole): void {
 
     // Backend update expects multipart/form-data, so always use FormData update
-    this.docsService.update(doc.id, { ...doc, role }, null).subscribe({
+    this.docsService.update(
+      doc.id,
+      {
+        title: doc.title ?? '',
+        description: doc.description ?? '',
+        content: doc.content ?? '',
+        role,
+        createBy: doc.createBy ?? '',
+      },
+      null
+    ).subscribe({
 
       next: (updated) => {
 
