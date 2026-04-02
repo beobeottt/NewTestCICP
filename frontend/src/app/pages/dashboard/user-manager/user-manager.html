@@ -1,0 +1,134 @@
+<div class="space-y-4">
+  <div class="flex items-center justify-between gap-4">
+    <div>
+      <h2 class="text-xl font-semibold text-cyan-700">Quản Lý Người Dùng</h2>
+    </div>
+    <button
+      type="button"
+      (click)="openCreateModal()"
+      class="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition"
+    >
+      Tạo Người dùng mới
+    </button>
+  </div>
+
+  <p *ngIf="errorMessage" class="text-red-600 text-sm">{{ errorMessage }}</p>
+
+  <div class="bg-white rounded-xl shadow overflow-hidden max-h-[calc(100vh-220px)]">
+    <div *ngIf="isLoading" class="p-4 text-gray-500 text-center">Đang tải dữ liệu...</div>
+
+    <table *ngIf="!isLoading" class="w-full text-left min-w-full">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="p-3 text-sm font-semibold text-gray-600">Username</th>
+          <th class="p-3 text-sm font-semibold text-gray-600">Role</th>
+          <th class="p-3 text-sm font-semibold text-gray-600">Tạo lúc</th>
+          <th class="p-3 text-sm font-semibold text-gray-600 text-right">Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let u of users" class="border-t hover:bg-gray-50">
+          <td class="p-3 font-medium text-gray-800">{{ u.username }}</td>
+          <td class="p-3 text-gray-600">{{ u.role }}</td>
+          <td class="p-3 text-gray-500 text-sm">{{ u.createdAt | date: 'short' }}</td>
+          <td class="p-3">
+            <div class="flex items-center justify-end gap-2">
+              <button 
+                type="button"
+                (click)="openEditModal(u)"
+                class="px-3 py-1.5 rounded-lg border border-cyan-200 text-cyan-600 hover:bg-cyan-50 text-sm transition"
+              >
+                Update
+              </button>
+              <button 
+                type="button" 
+                (click)="delete(u)"
+                class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 text-sm transition"
+              >
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="users.length === 0 && !isLoading">
+          <td colspan="4" class="p-10 text-center text-gray-400">Chưa có người dùng nào.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div
+  *ngIf="showModal"
+  class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+>
+  <div class="bg-white w-full max-w-[500px] rounded-xl shadow-lg p-6 relative">
+    <button
+      (click)="closeModal()"
+      class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl"
+    >
+      ✕
+    </button>
+
+    <h2 class="text-xl font-semibold text-cyan-700 mb-6">
+      {{ selectedUserId ? 'Update User' : 'Create User' }}
+    </h2>
+
+    <form [formGroup]="form" (ngSubmit)="save()" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">User Name</label>
+        <input 
+          type="text"
+          formControlName="username"
+          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+          [class.border-red-500]="form.controls.username.touched && form.controls.username.invalid"
+        />
+        <p *ngIf="form.controls.username.touched && form.controls.username.invalid" class="text-red-500 text-xs mt-1">
+          Username tối thiểu 3 ký tự.
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          PasswordHash <span *ngIf="selectedUserId" class="text-gray-400 font-normal">(Để trống nếu không đổi)</span>
+        </label>
+        <input 
+          type="PasswordHash"
+          formControlName="PasswordHash"
+          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+          [class.border-red-500]="form.controls.PasswordHash.touched && form.controls.PasswordHash.invalid"
+        />
+        <p *ngIf="form.controls.PasswordHash.touched && form.controls.PasswordHash.invalid" class="text-red-500 text-xs mt-1">
+          Mật khẩu tối thiểu 6 ký tự.
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+        <select
+          formControlName="role"
+          class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-cyan-500 outline-none"
+        >
+          <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+        </select>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-4">
+        <button
+          type="button"
+          (click)="closeModal()"
+          class="px-5 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
+        >
+          Hủy
+        </button>
+        <button
+          type="submit"
+          [disabled]="form.invalid"
+          class="px-5 py-2 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
+        >
+          {{ selectedUserId ? 'Lưu thay đổi' : 'Tạo người dùng' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

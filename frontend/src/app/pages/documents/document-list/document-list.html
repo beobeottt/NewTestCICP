@@ -1,0 +1,84 @@
+<div class="space-y-4">
+  <div class="flex items-center justify-between gap-4">
+    <div>
+      <h2 class="text-xl font-semibold text-cyan-700">Danh sách công văn</h2>
+      <p class="text-sm text-gray-500">Quản lý theo trạng thái Pending / Approved / Rejected</p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <select
+        class="border rounded-lg px-3 py-2"
+        [(ngModel)]="roleFilter"
+      >
+        <option value="All">Tất cả</option>
+        <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+      </select>
+
+      <a
+        routerLink="/documents/create"
+        class="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition"
+      >
+        Thêm công văn
+      </a>
+    </div>
+  </div>
+
+  <p *ngIf="errorMessage" class="text-red-600 text-sm">{{ errorMessage }}</p>
+
+  <div class="bg-white rounded-xl shadow overflow-hidden">
+    <div *ngIf="isLoading" class="p-4 text-gray-500">Đang tải...</div>
+
+    <table *ngIf="!isLoading" class="w-full text-left">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="p-3 text-sm font-semibold text-gray-600">Tiêu đề</th>
+          <th class="p-3 text-sm font-semibold text-gray-600">Mô tả</th>
+          <th class="p-3 text-sm font-semibold text-gray-600">Trạng thái</th>
+          <th class="p-3 text-sm font-semibold text-gray-600">Cập nhật</th>
+          <th class="p-3 text-sm font-semibold text-gray-600 text-right">Hành động</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let d of filtered" class="border-t">
+          <td class="p-3 font-medium text-gray-800">{{ d.title }}</td>
+          <td class="p-3 text-gray-600 line-clamp-1">{{ d.description }}</td>
+          <td class="p-3">
+            <span
+              class="px-2 py-1 rounded-full text-xs font-semibold"
+              [ngClass]="{
+                'bg-amber-100 text-amber-700': d.role === 'Pending',
+                'bg-green-100 text-green-700': d.role === 'Approved',
+                'bg-red-100 text-red-700': d.role === 'Rejected'
+              }"
+            >
+              {{ d.role }}
+            </span>
+          </td>
+          <td class="p-3 text-gray-500 text-sm">{{ d.updateAt | date:'short' }}</td>
+          <td class="p-3">
+            <div class="flex items-center justify-end gap-2">
+              <a
+                [routerLink]="['/documents', d.id]"
+                class="px-3 py-1.5 rounded-lg border hover:bg-gray-50"
+              >
+                Sửa
+              </a>
+              <button
+                type="button"
+                (click)="delete(d)"
+                class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50"
+              >
+                Xoá
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="filtered.length === 0">
+          <td class="p-4 text-gray-500" colspan="5">Chưa có dữ liệu.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

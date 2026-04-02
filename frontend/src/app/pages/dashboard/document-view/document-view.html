@@ -1,0 +1,103 @@
+<div class="space-y-4">
+
+  <div class="flex items-center justify-between">
+    <h2 class="text-xl font-semibold text-cyan-700">
+      Chi tiết công văn
+    </h2>
+
+    <a
+      routerLink="/dashboard/incoming"
+      class="text-cyan-700 hover:underline"
+    >
+      Quay lại
+    </a>
+  </div>
+
+  <p *ngIf="errorMessage" class="text-red-600 text-sm">
+    {{ errorMessage }}
+  </p>
+
+  <div *ngIf="isLoading" class="text-gray-500">
+    Đang tải...
+  </div>
+
+  <ng-container *ngIf="!isLoading && doc as d">
+
+    <div class="bg-white rounded-xl shadow p-4 space-y-3">
+
+      <div class="flex items-center justify-between gap-3">
+
+        <div>
+          <p class="text-sm text-gray-500">Tiêu đề</p>
+          <p class="text-lg font-semibold text-gray-900">
+            {{ d.title }}
+          </p>
+        </div>
+
+        <span
+          class="px-2 py-1 rounded-full text-xs font-semibold"
+
+          [ngClass]="{
+            'bg-amber-100 text-amber-700': roleLabel(d.role) === 'Pending',
+            'bg-green-100 text-green-700': roleLabel(d.role) === 'Approved',
+            'bg-red-100 text-red-700': roleLabel(d.role) === 'Rejected'
+          }"
+        >
+          {{ roleLabel(d.role) }}
+        </span>
+
+      </div>
+
+      <div>
+        <p class="text-sm text-gray-500">Mô tả</p>
+        <p class="text-gray-800 whitespace-pre-wrap">
+          {{ d.description || '(trống)' }}
+        </p>
+      </div>
+
+      <div>
+        <p class="text-sm text-gray-500">Nội dung</p>
+        <p class="text-gray-800 whitespace-pre-wrap">
+          {{ d.content || '(trống)' }}
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+        <div>
+          <p class="text-sm text-gray-500">Người tạo</p>
+          <p class="text-gray-800">
+            {{ d.createBy || '-' }}
+          </p>
+        </div>
+
+        <div>
+          <p class="text-sm text-gray-500">Cập nhật</p>
+          <p class="text-gray-800">
+            {{ d.updateAt | date:'short' }}
+          </p>
+        </div>
+
+      </div>
+
+      <div *ngIf="attachmentHref(d)" class="pt-2">
+
+        <p class="text-sm text-gray-500">
+          File đính kèm
+        </p>
+
+        <a
+          [href]="attachmentHref(d)!"
+          target="_blank"
+          class="text-cyan-700 hover:underline"
+        >
+          {{ d.attachmentFileName || d.attachmentUrl }}
+        </a>
+
+      </div>
+
+    </div>
+
+  </ng-container>
+
+</div>

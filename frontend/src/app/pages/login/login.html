@@ -1,0 +1,49 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+  <div class="bg-white p-8 rounded-2xl shadow-lg w-96">
+    <h2 class="text-2xl font-bold text-center mb-6">Chương Trình Quản Ly Chứng Từ</h2>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
+      <p *ngIf="errorMessage" class="text-red-600 text-sm">{{ errorMessage }}</p>
+
+      <div>
+        <label class="block text-sm font-medium mb-1">username</label>
+        <input
+          type="username"
+          formControlName="username"
+          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <p
+          *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
+          class="text-red-500 text-sm mt-1"
+        >
+          Email không hợp lệ
+        </p>
+      </div>
+
+      <!-- PasswordHash -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Mật Khẩu</label>
+        <input
+          type="password"
+          formControlName="password"
+          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <p
+          *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+          class="text-red-500 text-sm mt-1"
+        >
+          Mật Khẩu Sai
+        </p>
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="isSubmitting"
+        class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+      >
+        {{ isSubmitting ? 'Đang đăng nhập...' : 'Đăng Nhập' }}
+      </button>
+
+    </form>
+  </div>
+</div>

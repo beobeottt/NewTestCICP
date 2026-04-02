@@ -1,0 +1,254 @@
+
+<div class="space-y-4">
+
+  <div class="flex items-center justify-between gap-4">
+    <div class="space-y-1">
+      <h2 class="text-xl font-semibold text-cyan-700">
+        Xử Lý Công Văn
+      </h2>
+      <div class="flex items-center gap-2 text-sm text-gray-600">
+        <label>Trạng thái:</label>
+        <select
+          class="border rounded-lg px-2 py-1"
+          [(ngModel)]="statusFilter"
+        >
+          <option value="All">Tất cả</option>
+          <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+        </select>
+
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Tìm theo tiêu đề/mô tả..."
+          class="border rounded-lg px-2 py-1 w-56"
+        />
+      </div>
+    </div>
+  </div>
+
+  <p *ngIf="errorMessage" class="text-red-600 text-sm">
+    {{ errorMessage }}
+  </p>
+
+  <div class="bg-white rounded-xl shadow overflow-auto max-h-[calc(100vh-220px)]">
+
+    <div *ngIf="isLoading" class="p-4 text-gray-500">
+      Đang tải...
+    </div>
+
+    <table *ngIf="!isLoading" class="w-full text-left min-w-full">
+
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="p-3 text-sm font-semibold text-gray-600">
+            Tiêu đề
+          </th>
+
+          <th class="p-3 text-sm font-semibold text-gray-600">
+            Trạng thái
+          </th>
+
+          <th class="p-3 text-sm font-semibold text-gray-600 text-right">
+            Hành động
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr *ngFor="let d of filteredDocuments" class="border-t">
+
+          <!-- Title -->
+          <td class="p-3 font-medium text-gray-800">
+            <a
+              class="text-cyan-700 hover:underline"
+              [routerLink]="['/dashboard/document', d.id]"
+            >
+              {{ d.title }}
+            </a>
+          </td>
+
+          <td class="p-3">
+            <span
+              class="px-2 py-1 rounded-full text-xs font-semibold"
+              [ngClass]="{
+                'bg-amber-100 text-amber-700': roleLabel(d.role) === 'Pending',
+                'bg-green-100 text-green-700': roleLabel(d.role) === 'Approved',
+                'bg-red-100 text-red-700': roleLabel(d.role) === 'Rejected'
+              }"
+            >
+              {{ roleLabel(d.role) }}
+            </span>
+          </td>
+
+          <td class="p-3 text-right">
+            <button
+              (click)="openModel(d)"
+              class="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition"
+            >
+              Xử Lý
+            </button>
+
+            <button
+            (click)="Delete(d)"
+            class="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition"
+            >
+              Xoá
+            </button>
+          </td>
+
+        </tr>
+
+        <tr *ngIf="documents.length === 0">
+          <td colspan="3" class="p-4 text-gray-500 text-center">
+            Chưa có dữ liệu.
+          </td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+
+<!-- ===================== -->
+<!-- Modal Process Document -->
+<!-- ===================== -->
+
+<div
+  *ngIf="showModal"
+  class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
+>
+
+  <div class="bg-white w-[650px] rounded-xl shadow-lg p-6 relative">
+
+    <button
+      (click)="showModal=false"
+      class="absolute right-5 top-5 text-gray-500 hover:text-black text-xl"
+    >
+      ✕
+    </button>
+
+    <h2 class="text-2xl font-semibold text-cyan-700 mb-6">
+      Thông tin công văn
+    </h2>
+
+    <form [formGroup]="form" class="space-y-4">
+
+      <div>
+        <label class="block font-medium mb-1">
+          Tiêu đề
+        </label>
+
+        <input
+          type="text"
+          formControlName="title"
+          class="w-full border rounded-lg p-3 outline-none focus:ring-2 focus:ring-cyan-500"
+        />
+      </div>
+
+      <div>
+        <label class="block font-medium mb-1">
+          Mô tả
+        </label>
+
+        <input
+          type="text"
+          formControlName="description"
+          class="w-full border rounded-lg p-3 outline-none focus:ring-2 focus:ring-cyan-500"
+        />
+      </div>
+
+      <div>
+        <label class="block font-medium mb-1">
+          Nội dung
+        </label>
+
+        <textarea
+          rows="5"
+          formControlName="content"
+          class="w-full border rounded-lg p-3 outline-none focus:ring-2 focus:ring-cyan-500"
+        ></textarea>
+      </div>
+
+      <div>
+        <label class="block font-medium mb-1">
+          Trạng thái
+        </label>
+
+        <select
+          formControlName="role"
+          class="w-full border rounded-lg p-3"
+        >
+          <option *ngFor="let r of roles" [value]="r">
+            {{ r }}
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block font-medium mb-1">
+          Người tạo
+        </label>
+
+        <input
+          type="text"
+          formControlName="createBy"
+          class="w-full border rounded-lg p-3"
+        />
+      </div>
+
+      <div>
+
+        <label class="block font-medium mb-1">
+          File đính kèm
+        </label>
+
+        <div *ngIf="doc?.attachmentUrl" class="text-sm mb-2">
+          File hiện tại:
+          <a
+            [href]="attachmentHref(doc)"
+            target="_blank"
+            class="text-cyan-600 underline"
+          >
+            {{ doc?.attachmentFileName }}
+          </a>
+        </div>
+
+        <input
+          type="file"
+          (change)="onFileSelected($event)"
+          class="w-full border rounded-lg p-3"
+        />
+
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex justify-end gap-3 pt-4">
+
+        <button
+          type="button"
+          (click)="showModal=false"
+          class="px-5 py-2 border rounded-lg hover:bg-gray-100"
+        >
+          Hủy
+        </button>
+
+        <button
+          type="button"
+          (click)="updateDocument()"
+          class="px-5 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700"
+        >
+          Cập nhật
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

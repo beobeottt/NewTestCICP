@@ -1,0 +1,56 @@
+<aside class="w-64 bg-cyan-500 text-white flex flex-col h-screen">
+
+  <div class="p-6 text-2xl font-bold border-b border-white/20 justify-center">
+    Trang Chính
+  </div>
+
+  <nav class="flex-1 p-4 space-y-3">
+    <a
+      routerLink="/dashboard/incoming"
+      routerLinkActive="bg-cyan-600"
+      class="flex items-center justify-center gap-3 p-3 rounded-lg hover:bg-cyan-600 cursor-pointer"
+    >
+      <span>Công Văn</span>
+    </a>
+
+    <ng-container *ngIf="isAdmin()">
+      <a
+        routerLink="/dashboard/process"
+        routerLinkActive="bg-cyan-600"
+        class="flex items-center justify-center gap-3 p-3 rounded-lg hover:bg-cyan-600 cursor-pointer"
+      >
+        <span>Xử Lý Công Văn</span>
+      </a>
+
+      <a
+        routerLink="/dashboard/user-manager"
+        routerLinkActive="bg-cyan-600"
+        class="flex items-center justify-center gap-3 p-3 rounded-lg hover:bg-cyan-600 cursor-pointer"
+      >
+        <span>Quản Lý Người Dùng</span>
+      </a>      
+    </ng-container>
+    <a
+        routerLink="/dashboard/statistics"
+        routerLinkActive="bg-cyan-600"
+        class="flex items-center justify-center gap-3 p-3 rounded-lg hover:bg-cyan-600 cursor-pointer"
+      >
+        <span>Thống Kê</span>
+      </a>
+    <a
+        routerLink="/dashboard/settings"
+        routerLinkActive="bg-cyan-600"
+        class="flex items-center justify-center gap-3 p-3 rounded-lg hover:bg-cyan-600 cursor-pointer"
+      >
+        <span>Cài Đặt</span>
+      </a>
+  </nav>
+
+  <button
+    type="button"
+    (click)="logout()"
+    class="p-4 border-t border-white/20 flex items-center justify-center gap-3 p-3 rounded-lg hover:bg-cyan-600 cursor-pointer"
+  >
+    Thoát
+  </button>
+</aside>

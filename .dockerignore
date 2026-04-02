@@ -1,0 +1,22 @@
+node_modules
+dist
+.git
+.gitignore
+
+# Angular
+frontend/node_modules
+frontend/dist
+
+# .NET
+backend/bin
+backend/obj
+
+# OS
+.DS_Store
+
+# logs
+*.log
+
+# Docker
+Dockerfile
+docker-compose.yml

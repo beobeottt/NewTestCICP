@@ -1,0 +1,24 @@
+# Stage 1: Build .NET
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+COPY ["backend/*.csproj", "backend/"]
+RUN dotnet restore "backend/backend.csproj"
+
+# Copy toàn bộ source backend và build
+COPY backend/ ./backend/
+WORKDIR "/src/backend"
+RUN dotnet publish -c Release -o /app/publish
+
+# Stage 2: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
+WORKDIR /app
+COPY --from=build /app/publish .
+
+# Tạo thư mục uploads nếu cần
+RUN mkdir -p /app/uploads
+
+EXPOSE 5000
+ENV ASPNETCORE_URLS=http://+:5000
+
+ENTRYPOINT ["dotnet", "backend.dll"]
