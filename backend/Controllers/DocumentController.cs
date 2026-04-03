@@ -101,7 +101,6 @@ public async Task<IActionResult> Patch(string id, [FromForm] UpdateDocumentReq r
 
     if (document == null) return NotFound();
 
-    // Chỉ update nếu có giá trị (tránh ghi đè null)
     if (!string.IsNullOrEmpty(req.title))
         document.title = req.title;
 
@@ -111,13 +110,12 @@ public async Task<IActionResult> Patch(string id, [FromForm] UpdateDocumentReq r
     if (!string.IsNullOrEmpty(req.content))
         document.content = req.content;
 
-    if (req.Role != null)
-        document.Role = req.Role;
+    if (req.Role.HasValue)
+        document.Role = req.Role.Value;
 
     if (!string.IsNullOrEmpty(req.CreateBy))
         document.CreateBy = req.CreateBy;
 
-    // File chỉ update nếu có upload mới
     if (req.File is { Length: > 0 })
     {
         var url = await _cloudinaryService.UploadAsync(req.File);
