@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../environments/environment';
 
 @Component({
-  selector: 'app-process-documents',
+  selector: 'appprocess-documen-ts',
   standalone: true,
   imports: [
     CommonModule,
@@ -28,11 +28,14 @@ export class ProcessDocumentsPage implements OnInit {
 
   doc: DocumentDto | null = null;
   selectedDocument: DocumentDto | null = null;
+
   documents: DocumentDto[] = [];
 
   isLoading = false;
   errorMessage = '';
+
   docId = '';
+
   showModal = false;
 
   roles: DocumentRole[] = ['Pending', 'Approved', 'Rejected'];
@@ -50,77 +53,181 @@ export class ProcessDocumentsPage implements OnInit {
     createBy: this.fb.nonNullable.control('admin'),
   });
 
+
   ngOnInit(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
 
-    const id = this.route.snapshot.paramMap.get('id');
+  if (!isPlatformBrowser(this.platformId)) return;
 
-    if (id) {
-      this.docId = id;
-      this.loadDocument(id);
-    } else {
-      this.load();
-    }
+  const id = this.route.snapshot.paramMap.get('id');
+
+  if (id) {
+    this.docId = id;
+    this.loadDocument(id);
+  } 
+  else {
+    this.load();
   }
 
-  load(): void {
+}
+
+
+load(): void {
+    this.errorMessage = '';
     this.isLoading = true;
 
     this.docsService.getAll().subscribe({
       next: (docs) => {
         this.documents = docs ?? [];
         this.isLoading = false;
+
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.errorMessage = 'Không tải được danh sách';
+
+      error: () =>{
+        this.errorMessage = 'can not solve document';
         this.isLoading = false;
+
+        this.cdr.detectChanges();
       }
+    });
+  }
+
+  get filteredDocuments(): DocumentDto[] {
+    const term = this.searchTerm.trim().toLowerCase();
+    const status = this.statusFilter;
+
+    return this.documents.filter((d) => {
+      const label = this.roleLabel(d.role);
+      const matchStatus = status === 'All' || label === status;
+      const text = `${d.title ?? ''} ${d.description ?? ''}`.toLowerCase();
+      const matchSearch = !term || text.includes(term);
+      return matchStatus && matchSearch;
     });
   }
 
   private loadDocument(id: string) {
+
+    this.isLoading = true;
+
     this.docsService.getById(id).subscribe({
+
       next: (d) => {
+
+        this.doc = d;
+
         this.openModel(d);
+
+        this.isLoading = false;
+
+        this.cdr.detectChanges();
+
       },
-      error: () => {
-        this.errorMessage = 'Load detail lỗi';
+
+      error: (err) => {
+
+        console.error(err);
+
+        this.errorMessage = 'Cannot load document detail';
+
+        this.isLoading = false;
+
+        this.cdr.detectChanges();
+
       }
+
     });
   }
 
-  openModel(doc: DocumentDto): void {
-    this.selectedDocument = doc;
-    this.selectedFile = null;
-    this.showModal = true;
 
-    this.form.patchValue({
-      title: doc.title ?? '',
-      description: doc.description ?? '',
-      content: doc.content ?? '',
-      role: this.roleLabel(doc.role),
-      createBy: doc.createBy ?? ''
+  setRole(doc: DocumentDto, role: DocumentRole): void {
+    this.docsService.update(
+      doc.id,
+      {
+        title: doc.title ?? '',
+        description: doc.description ?? '',
+        content: doc.content ?? '',
+        role,
+        createBy: doc.createBy ?? '',
+      },
+      null
+    ).subscribe({
+
+      next: (updated) => {
+
+        this.documents = this.documents.map((d) =>
+          d.id === doc.id ? { ...d, role: updated.role } : d
+        );
+
+      },
+
+      error: () => {
+
+        alert('Không thể cập nhật trạng thái.');
+        console.log(this.errorMessage);
+
+      },
+
     });
-  }
 
-  closeModal() {
-    this.showModal = false;
   }
 
   roleLabel(role: DocumentRole | number): DocumentRole {
+
     if (role === 0) return 'Pending';
+
     if (role === 1) return 'Approved';
+
     if (role === 2) return 'Rejected';
-    return role as DocumentRole;
+
+    if (role === 'Pending' || role === 'Approved' || role === 'Rejected') return role;
+
+    return 'Pending';
+
   }
 
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) this.selectedFile = file;
+  openModel(doc: DocumentDto): void {
+
+    this.selectedFile = null;
+    this.doc = doc;
+    this.selectedDocument = doc;
+
+    this.showModal = true;
+
+    this.form.patchValue({
+
+      title: doc.title ?? '',
+
+      description: doc.description ?? '',
+
+      content: doc.content ?? '',
+
+      role: this.roleLabel(doc.role),
+
+      createBy: doc.createBy ?? ''
+
+    });
+    console.log(doc);
+
   }
 
-  // ================== DEBUG FORM DATA ==================
+  closeModal(){
+    this.showModal = false;
+  }
+
+  Delete(document: DocumentDto): void
+  {
+    if(confirm(`Delete Document "${document.title}"?`))
+    {
+      this.docsService.delete(document.id.toString()).subscribe({
+        next: () => {
+          this.documents = this.documents.filter(doc => doc.id.toString() != document.id.toString());
+          this.cdr.detectChanges();
+        },
+        error: () => alert('Delete False')
+      });
+    }
+  }
+
   private debugFormData(doc: any, file?: File | null) {
     const fd = new FormData();
     fd.append('title', String(doc.title ?? ''));
@@ -136,9 +243,7 @@ export class ProcessDocumentsPage implements OnInit {
     }
     console.log("=============================");
   }
-  // ====================================================
-
-  updateDocument(): void {
+updateDocument(): void {
     console.log("CLICK UPDATE");
 
     if (!this.selectedDocument) {
@@ -184,12 +289,33 @@ export class ProcessDocumentsPage implements OnInit {
     });
   }
 
+  onFileSelected(event: any) {
+
+    const file = event.target.files[0];
+
+    if (file) {
+
+      this.selectedFile = file;
+
+    }
+
+  }
+
   attachmentHref(doc: DocumentDto | null | undefined): string | null {
+
     const url = doc?.attachmentUrl;
+
     if (!url) return null;
 
-    if (url.startsWith('http')) return url;
+    if (url.startsWith('http')) {
 
-    return `${environment.apiUrl}${url}`;
+      return url;
+
+    }
+
+    const BASE_URL = environment.apiUrl;
+
+    return `${BASE_URL}${url}`;
+
   }
 }
