@@ -232,7 +232,6 @@ updateDocument(): void {
 
   const raw = this.form.getRawValue();
 
-  // Merge dữ liệu cũ + mới
   const payload: UpdateDocumentDto = {
     ...this.selectedDocument, // giữ toàn bộ dữ liệu cũ
     title: raw.title,
@@ -241,6 +240,8 @@ updateDocument(): void {
     role: this.roles.indexOf(raw.role),
     createBy: raw.createBy
   };
+
+  console.log("PAYLOAD", payload);
 
   this.docsService.update(
     this.selectedDocument.id,
