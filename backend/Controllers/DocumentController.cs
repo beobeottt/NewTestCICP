@@ -72,10 +72,22 @@ public async Task<IActionResult> CreateWithFile([FromForm] DocumentCreateWithFil
 [HttpPatch("{id}")]
 public async Task<IActionResult> Patch(string id, [FromForm] UpdateDocumentReq req)
 {
+    Console.WriteLine("===== PATCH DEBUG =====");
+    Console.WriteLine($"ID: {id}");
+    Console.WriteLine($"Title: {req.title}");
+    Console.WriteLine($"Description: {req.description}");
+    Console.WriteLine($"Content: {req.content}");
+    Console.WriteLine($"Role: {req.Role}");
+    Console.WriteLine($"CreateBy: {req.CreateBy}");
+    Console.WriteLine($"Has File: {req.File != null}");
+
     var document = await _documentService.GetByIdAsync(id);
 
-    if (document == null) return NotFound();
-
+    if (document == null)
+    {
+        Console.WriteLine("Document NOT FOUND");
+        return NotFound();
+    }
     if (!string.IsNullOrEmpty(req.title))
         document.title = req.title;
 
@@ -85,20 +97,25 @@ public async Task<IActionResult> Patch(string id, [FromForm] UpdateDocumentReq r
     if (!string.IsNullOrEmpty(req.content))
         document.content = req.content;
 
-    if (req.Role.HasValue)
+    if (req.Role != null)
         document.Role = req.Role.Value;
 
     if (!string.IsNullOrEmpty(req.CreateBy))
         document.CreateBy = req.CreateBy;
 
+    // Upload file nếu có
     if (req.File is { Length: > 0 })
     {
         var url = await _cloudinaryService.UploadAsync(req.File);
         document.AttachmentUrl = url;
         document.AttachmentFileName = req.File.FileName;
+
+        Console.WriteLine("File uploaded!");
     }
 
     var updated = await _documentService.UpdateAsync(id, document);
+
+    Console.WriteLine("UPDATE SUCCESS");
 
     return Ok(updated);
 }
