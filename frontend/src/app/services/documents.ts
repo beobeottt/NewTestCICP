@@ -75,7 +75,7 @@ export class DocumentsService {
     payload = this.toFormData(doc, file);
   }
 
-  return this.http.put<DocumentDto>(`${this.apiUrl}/${id}`, payload);
+  return this.http.patch<DocumentDto>(`${this.apiUrl}/${id}`, payload);
 }
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
