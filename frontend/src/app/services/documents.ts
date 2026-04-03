@@ -77,6 +77,7 @@ export class DocumentsService {
   if (file) {
     payload = this.toFormData(doc, file);
   }
+  console.log("USING PATCH METHOD");
 
   return this.http.patch<DocumentDto>(`${this.apiUrl}/${id}`, payload);
 }
