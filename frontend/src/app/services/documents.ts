@@ -45,18 +45,21 @@ export class DocumentsService {
   }
 
   private toFormData(
-    doc: CreateDocumentDto | UpdateDocumentDto,
-    file?: File | null
-  ): FormData {
-    const fd = new FormData();
-    fd.append('title', String(doc.title ?? ''));
-    fd.append('description', String(doc.description ?? ''));
-    fd.append('content', String(doc.content ?? ''));
-    fd.append('role', String(doc.role ?? 'Pending'));
-    fd.append('createBy', String(doc.createBy ?? ''));
-    if (file) fd.append('file', file);
-    return fd;
-  }
+  doc: CreateDocumentDto | UpdateDocumentDto,
+  file?: File | null
+): FormData {
+  const fd = new FormData();
+
+  if (doc.title !== undefined) fd.append('title', doc.title);
+  if (doc.description !== undefined) fd.append('description', doc.description ?? '');
+  if (doc.content !== undefined) fd.append('content', doc.content ?? '');
+  if (doc.role !== undefined) fd.append('role', String(doc.role));
+  if (doc.createBy !== undefined) fd.append('createBy', doc.createBy ?? '');
+
+  if (file) fd.append('file', file);
+
+  return fd;
+}
 
 
   createWithFile(formData: FormData): Observable<DocumentDto> {

@@ -69,8 +69,6 @@ public async Task<IActionResult> CreateWithFile([FromForm] DocumentCreateWithFil
     }
 }
 
-
-
 [HttpPatch("{id}")]
 public async Task<IActionResult> Patch(string id, [FromForm] UpdateDocumentReq req)
 {
