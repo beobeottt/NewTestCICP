@@ -44,7 +44,7 @@ export class DocumentsService {
     return this.http.get<DocumentDto>(`${this.apiUrl}/${id}`);
   }
 
-  private toFormData(
+  toFormData(
   doc: CreateDocumentDto | UpdateDocumentDto,
   file?: File | null
 ): FormData {
