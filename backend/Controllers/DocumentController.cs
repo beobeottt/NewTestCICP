@@ -69,19 +69,55 @@ public async Task<IActionResult> CreateWithFile([FromForm] DocumentCreateWithFil
     }
 }
 
-    [HttpPut("{id}")]
-public async Task<IActionResult> Update(string id, [FromForm] UpdateDocumentReq req)
+//     [HttpPut("{id}")]
+// public async Task<IActionResult> Update(string id, [FromForm] UpdateDocumentReq req)
+// {
+//     var document = await _documentService.GetByIdAsync(id);
+
+//     if (document == null) return NotFound();
+
+//     document.title = req.title;
+//     document.description = req.description;
+//     document.content = req.content;
+//     document.Role = req.Role;
+//     document.CreateBy = req.CreateBy;
+
+//     if (req.File is { Length: > 0 })
+//     {
+//         var url = await _cloudinaryService.UploadAsync(req.File);
+//         document.AttachmentUrl = url;
+//         document.AttachmentFileName = req.File.FileName;
+//     }
+
+//     var updated = await _documentService.UpdateAsync(id, document);
+
+//     return Ok(updated);
+// }
+
+[HttpPatch("{id}")]
+public async Task<IActionResult> Patch(string id, [FromForm] UpdateDocumentReq req)
 {
     var document = await _documentService.GetByIdAsync(id);
 
     if (document == null) return NotFound();
 
-    document.title = req.title;
-    document.description = req.description;
-    document.content = req.content;
-    document.Role = req.Role;
-    document.CreateBy = req.CreateBy;
+    // Chỉ update nếu có giá trị (tránh ghi đè null)
+    if (!string.IsNullOrEmpty(req.title))
+        document.title = req.title;
 
+    if (!string.IsNullOrEmpty(req.description))
+        document.description = req.description;
+
+    if (!string.IsNullOrEmpty(req.content))
+        document.content = req.content;
+
+    if (req.Role != null)
+        document.Role = req.Role;
+
+    if (!string.IsNullOrEmpty(req.CreateBy))
+        document.CreateBy = req.CreateBy;
+
+    // File chỉ update nếu có upload mới
     if (req.File is { Length: > 0 })
     {
         var url = await _cloudinaryService.UploadAsync(req.File);

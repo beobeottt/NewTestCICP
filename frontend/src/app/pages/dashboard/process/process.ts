@@ -227,39 +227,46 @@ load(): void {
       });
     }
   }
-
 updateDocument(): void {
   if (!this.selectedDocument) return;
 
   const raw = this.form.getRawValue();
+
+  // Merge dữ liệu cũ + mới
   const payload: UpdateDocumentDto = {
-    ...this.selectedDocument,
+    ...this.selectedDocument, // giữ toàn bộ dữ liệu cũ
     title: raw.title,
     description: raw.description,
     content: raw.content,
     role: this.roles.indexOf(raw.role),
     createBy: raw.createBy
   };
-  this.docsService.update(this.selectedDocument.id, payload, this.selectedFile)
-    .subscribe({
-      next: (updated) => {
-        this.documents = this.documents.map(d =>
-          d.id === updated.id ? { ...d, ...updated } : d
-        );
 
-        this.showModal = false;
-        this.selectedFile = null;
-        this.cdr.detectChanges();
+  this.docsService.update(
+    this.selectedDocument.id,
+    payload,
+    this.selectedFile // có file thì gửi, không có thì giữ file cũ
+  ).subscribe({
+    next: (updated) => {
 
-        console.log('Document updated successfully', updated);
-      },
-      error: (err) => {
-        console.error('Update error', err);
-        alert('Không thể cập nhật document');
-      }
-    });
+      // update UI không reload
+      this.documents = this.documents.map(d =>
+        d.id === updated.id ? { ...d, ...updated } : d
+      );
+
+      this.showModal = false;
+      this.selectedFile = null;
+
+      this.cdr.detectChanges();
+
+      console.log("UPDATED OK", updated);
+    },
+    error: (err) => {
+      console.error("UPDATE ERROR", err);
+      alert("Không thể cập nhật document");
+    }
+  });
 }
-
 // private afterUpdate(updated: DocumentDto) {
 //   this.documents = this.documents.map(d =>
 //     d.id === updated.id ? { ...d, ...updated } : d

@@ -68,11 +68,15 @@ export class DocumentsService {
     return this.http.post<DocumentDto>(`${this.apiUrl}/with-file`, fd);
   }
 
-  update(id: string, doc: UpdateDocumentDto, file?: File | null): Observable<DocumentDto> {
+  update(id: string, doc: Partial<UpdateDocumentDto>, file?: File | null) {
+  let payload: FormData | Partial<UpdateDocumentDto> = doc;
 
-    const fd = this.toFormData(doc,file);
-    return this.http.put<DocumentDto>(`${this.apiUrl}/${id}`,fd);
+  if (file) {
+    payload = this.toFormData(doc, file);
   }
+
+  return this.http.put<DocumentDto>(`${this.apiUrl}/${id}`, payload);
+}
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
