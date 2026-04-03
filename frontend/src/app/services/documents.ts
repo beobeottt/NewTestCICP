@@ -71,13 +71,22 @@ export class DocumentsService {
     return this.http.post<DocumentDto>(`${this.apiUrl}/with-file`, fd);
   }
 
-  update(id: string, doc: Partial<UpdateDocumentDto>, file?: File | null) {
+  update(id: string, doc: any, file?: File | null) {
+  const fd = new FormData();
 
-    const payload = this.toFormData(doc, file);
+  fd.append('title', doc.title ?? '');
+  fd.append('description', doc.description ?? '');
+  fd.append('content', doc.content ?? '');
+  fd.append('role', doc.role ?? '');
+  fd.append('createBy', doc.createBy ?? '');
 
-  console.log("USING PATCH METHOD");
+  if (file) {
+    fd.append('file', file);
+  }
 
-  return this.http.patch<DocumentDto>(`${this.apiUrl}/${id}`, payload);
+  console.log("🚀 SEND FORM DATA ALWAYS");
+
+  return this.http.patch<DocumentDto>(`${this.apiUrl}/${id}`, fd);
 }
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
