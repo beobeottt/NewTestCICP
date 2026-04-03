@@ -233,24 +233,28 @@ updateDocument(): void {
   const raw = this.form.getRawValue();
 
   const payload: UpdateDocumentDto = {
-    ...this.selectedDocument, // giữ toàn bộ dữ liệu cũ
-    title: raw.title,
-    description: raw.description,
-    content: raw.content,
-    role: this.roles.indexOf(raw.role),
-    createBy: raw.createBy
-  };
+  title: raw.title,
+  description: raw.description,
+  content: raw.content,
+  role: this.roles.indexOf(raw.role),
+  createBy: raw.createBy
+};
 
   console.log("PAYLOAD", payload);
+
+  console.log("FORM DATA:");
+for (let pair of (this.docsService as any).toFormData(payload, this.selectedFile).entries()) {
+  console.log(pair[0], pair[1]);
+}
 
   this.docsService.update(
     this.selectedDocument.id,
     payload,
-    this.selectedFile // có file thì gửi, không có thì giữ file cũ
+    this.selectedFile 
   ).subscribe({
     next: (updated) => {
 
-      // update UI không reload
+
       this.documents = this.documents.map(d =>
         d.id === updated.id ? { ...d, ...updated } : d
       );
@@ -268,14 +272,6 @@ updateDocument(): void {
     }
   });
 }
-// private afterUpdate(updated: DocumentDto) {
-//   this.documents = this.documents.map(d =>
-//     d.id === updated.id ? { ...d, ...updated } : d
-//   );
-//   this.showModal = false;
-//   this.selectedFile = null;
-//   this.cdr.detectChanges();
-// }
   onFileSelected(event: any) {
 
     const file = event.target.files[0];

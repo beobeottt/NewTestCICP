@@ -50,11 +50,11 @@ export class DocumentsService {
 ): FormData {
   const fd = new FormData();
 
-  if (doc.title !== undefined) fd.append('title', doc.title);
-  if (doc.description !== undefined) fd.append('description', doc.description ?? '');
-  if (doc.content !== undefined) fd.append('content', doc.content ?? '');
-  if (doc.role !== undefined) fd.append('role', String(doc.role));
-  if (doc.createBy !== undefined) fd.append('createBy', doc.createBy ?? '');
+  if (doc.title != null) fd.append('title', doc.title);
+  if (doc.description != null) fd.append('description', doc.description);
+  if (doc.content != null) fd.append('content', doc.content);
+  if (doc.role != null) fd.append('role', String(doc.role));
+  if (doc.createBy != null) fd.append('createBy', doc.createBy);
 
   if (file) fd.append('file', file);
 
@@ -72,11 +72,9 @@ export class DocumentsService {
   }
 
   update(id: string, doc: Partial<UpdateDocumentDto>, file?: File | null) {
-  let payload: FormData | Partial<UpdateDocumentDto> = doc;
 
-  if (file) {
-    payload = this.toFormData(doc, file);
-  }
+    const payload = this.toFormData(doc, file);
+
   console.log("USING PATCH METHOD");
 
   return this.http.patch<DocumentDto>(`${this.apiUrl}/${id}`, payload);
