@@ -28,14 +28,11 @@ export class ProcessDocumentsPage implements OnInit {
 
   doc: DocumentDto | null = null;
   selectedDocument: DocumentDto | null = null;
-
   documents: DocumentDto[] = [];
 
   isLoading = false;
   errorMessage = '';
-
   docId = '';
-
   showModal = false;
 
   roles: DocumentRole[] = ['Pending', 'Approved', 'Rejected'];
@@ -53,252 +50,146 @@ export class ProcessDocumentsPage implements OnInit {
     createBy: this.fb.nonNullable.control('admin'),
   });
 
-
   ngOnInit(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
 
-  if (!isPlatformBrowser(this.platformId)) return;
+    const id = this.route.snapshot.paramMap.get('id');
 
-  const id = this.route.snapshot.paramMap.get('id');
-
-  if (id) {
-    this.docId = id;
-    this.loadDocument(id);
-  } 
-  else {
-    this.load();
+    if (id) {
+      this.docId = id;
+      this.loadDocument(id);
+    } else {
+      this.load();
+    }
   }
 
-}
-
-
-load(): void {
-    this.errorMessage = '';
+  load(): void {
     this.isLoading = true;
 
     this.docsService.getAll().subscribe({
       next: (docs) => {
         this.documents = docs ?? [];
         this.isLoading = false;
-
         this.cdr.detectChanges();
       },
-
-      error: () =>{
-        this.errorMessage = 'can not solve document';
+      error: () => {
+        this.errorMessage = 'Không tải được danh sách';
         this.isLoading = false;
-
-        this.cdr.detectChanges();
       }
-    });
-  }
-
-  get filteredDocuments(): DocumentDto[] {
-    const term = this.searchTerm.trim().toLowerCase();
-    const status = this.statusFilter;
-
-    return this.documents.filter((d) => {
-      const label = this.roleLabel(d.role);
-      const matchStatus = status === 'All' || label === status;
-      const text = `${d.title ?? ''} ${d.description ?? ''}`.toLowerCase();
-      const matchSearch = !term || text.includes(term);
-      return matchStatus && matchSearch;
     });
   }
 
   private loadDocument(id: string) {
-
-    this.isLoading = true;
-
     this.docsService.getById(id).subscribe({
-
       next: (d) => {
-
-        this.doc = d;
-
         this.openModel(d);
-
-        this.isLoading = false;
-
-        this.cdr.detectChanges();
-
       },
-
-      error: (err) => {
-
-        console.error(err);
-
-        this.errorMessage = 'Cannot load document detail';
-
-        this.isLoading = false;
-
-        this.cdr.detectChanges();
-
-      }
-
-    });
-  }
-
-
-  setRole(doc: DocumentDto, role: DocumentRole): void {
-    this.docsService.update(
-      doc.id,
-      {
-        title: doc.title ?? '',
-        description: doc.description ?? '',
-        content: doc.content ?? '',
-        role,
-        createBy: doc.createBy ?? '',
-      },
-      null
-    ).subscribe({
-
-      next: (updated) => {
-
-        this.documents = this.documents.map((d) =>
-          d.id === doc.id ? { ...d, role: updated.role } : d
-        );
-
-      },
-
       error: () => {
-
-        alert('Không thể cập nhật trạng thái.');
-        console.log(this.errorMessage);
-
-      },
-
+        this.errorMessage = 'Load detail lỗi';
+      }
     });
-
-  }
-
-  roleLabel(role: DocumentRole | number): DocumentRole {
-
-    if (role === 0) return 'Pending';
-
-    if (role === 1) return 'Approved';
-
-    if (role === 2) return 'Rejected';
-
-    if (role === 'Pending' || role === 'Approved' || role === 'Rejected') return role;
-
-    return 'Pending';
-
   }
 
   openModel(doc: DocumentDto): void {
-
-    this.selectedFile = null;
-    this.doc = doc;
     this.selectedDocument = doc;
-
+    this.selectedFile = null;
     this.showModal = true;
 
     this.form.patchValue({
-
       title: doc.title ?? '',
-
       description: doc.description ?? '',
-
       content: doc.content ?? '',
-
       role: this.roleLabel(doc.role),
-
       createBy: doc.createBy ?? ''
-
     });
-    console.log(doc);
-
   }
 
-  closeModal(){
+  closeModal() {
     this.showModal = false;
   }
 
-  Delete(document: DocumentDto): void
-  {
-    if(confirm(`Delete Document "${document.title}"?`))
-    {
-      this.docsService.delete(document.id.toString()).subscribe({
-        next: () => {
-          this.documents = this.documents.filter(doc => doc.id.toString() != document.id.toString());
-          this.cdr.detectChanges();
-        },
-        error: () => alert('Delete False')
-      });
-    }
+  roleLabel(role: DocumentRole | number): DocumentRole {
+    if (role === 0) return 'Pending';
+    if (role === 1) return 'Approved';
+    if (role === 2) return 'Rejected';
+    return role as DocumentRole;
   }
-updateDocument(): void {
-  if (!this.selectedDocument) return;
 
-  const raw = this.form.getRawValue();
-
-  const payload: UpdateDocumentDto = {
-  title: raw.title,
-  description: raw.description,
-  content: raw.content,
-  role: this.roles.indexOf(raw.role),
-  createBy: raw.createBy
-};
-
-  console.log("PAYLOAD", payload);
-
-  console.log("FORM DATA:");
-for (let pair of (this.docsService as any).toFormData(payload, this.selectedFile).entries()) {
-  console.log(pair[0], pair[1]);
-}
-
-  this.docsService.update(
-    this.selectedDocument.id,
-    payload,
-    this.selectedFile 
-  ).subscribe({
-    next: (updated) => {
-
-
-      this.documents = this.documents.map(d =>
-        d.id === updated.id ? { ...d, ...updated } : d
-      );
-
-      this.showModal = false;
-      this.selectedFile = null;
-
-      this.cdr.detectChanges();
-
-      console.log("UPDATED OK", updated);
-    },
-    error: (err) => {
-      console.error("UPDATE ERROR", err);
-      alert("Không thể cập nhật document");
-    }
-  });
-}
   onFileSelected(event: any) {
-
     const file = event.target.files[0];
+    if (file) this.selectedFile = file;
+  }
 
-    if (file) {
+  // ================== DEBUG FORM DATA ==================
+  private debugFormData(doc: any, file?: File | null) {
+    const fd = new FormData();
+    fd.append('title', String(doc.title ?? ''));
+    fd.append('description', String(doc.description ?? ''));
+    fd.append('content', String(doc.content ?? ''));
+    fd.append('role', String(doc.role ?? ''));
+    fd.append('createBy', String(doc.createBy ?? ''));
+    if (file) fd.append('file', file);
 
-      this.selectedFile = file;
+    console.log("====== FORM DATA DEBUG ======");
+    for (let pair of fd.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+    console.log("=============================");
+  }
+  // ====================================================
 
+  updateDocument(): void {
+    console.log("CLICK UPDATE");
+
+    if (!this.selectedDocument) {
+      console.log("NO DOCUMENT");
+      return;
     }
 
+    const raw = this.form.getRawValue();
+
+    const payload: UpdateDocumentDto = {
+      title: raw.title,
+      description: raw.description,
+      content: raw.content,
+      role: this.roles.indexOf(raw.role),
+      createBy: raw.createBy
+    };
+
+    console.log("PAYLOAD:", payload);
+
+    // 🔥 DEBUG DATA TRƯỚC KHI GỬI
+    this.debugFormData(payload, this.selectedFile);
+
+    this.docsService.update(
+      this.selectedDocument.id,
+      payload,
+      this.selectedFile
+    ).subscribe({
+      next: (updated) => {
+        console.log("UPDATED RESPONSE:", updated);
+
+        this.documents = this.documents.map(d =>
+          d.id === updated.id ? { ...d, ...updated } : d
+        );
+
+        this.showModal = false;
+        this.selectedFile = null;
+
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error("UPDATE ERROR:", err);
+      }
+    });
   }
 
   attachmentHref(doc: DocumentDto | null | undefined): string | null {
-
     const url = doc?.attachmentUrl;
-
     if (!url) return null;
 
-    if (url.startsWith('http')) {
+    if (url.startsWith('http')) return url;
 
-      return url;
-
-    }
-
-    const BASE_URL = environment.apiUrl;
-
-    return `${BASE_URL}${url}`;
-
+    return `${environment.apiUrl}${url}`;
   }
 }
