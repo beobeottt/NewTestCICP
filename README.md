@@ -68,14 +68,14 @@ Các biến quan trọng:
 - **Backend**:
   - `ASPNETCORE_ENVIRONMENT`
   - `ConnectionStrings__DefaultConnection` (được set trực tiếp trong compose)
-- **Cloudinary** (nếu có dùng):
+- **Cloudinary**
   - `CLOUDINARY_CLOUD_NAME`
   - `CLOUDINARY_API_KEY`
   - `CLOUDINARY_API_SECRET`
 
 Khuyến nghị: tạo file `.env` riêng cho production và **không commit secret**.
 
-### 2) Chạy bằng Docker Compose (dùng image từ Docker Hub)
+### 2 Chạy bằng Docker Compose (dùng image từ Docker Hub)
 
 File: `docker-compose.yml` đang trỏ tới images:
 - `beobeotttt/backend:latest`
@@ -155,8 +155,8 @@ docker run -d --name angular_fe --network app_net -p 80:80 \
 ## Seed data / tài khoản test
 
 Backend có seed data (nếu DB đang trống):
-- `admin / Admin@123` (role `Admin`)
-- `user / User@123` (role `User`)
+- `khang / 123456` (role `Admin`)
+- `long / longdep` (role `User`)
 
 Và một số **documents mẫu** với trạng thái `Pending/Approved/Rejected`.
 
@@ -194,4 +194,22 @@ Yêu cầu bạn set GitHub Secrets:
 - **Pagination server-side** cho danh sách documents/users (khi dữ liệu lớn).
 - **Audit log**: lưu lịch sử xử lý công văn (ai đổi trạng thái, lúc nào).
 - **Dark mode**: lưu theme trong localStorage và toggle trong UI.
+
+
+
+cấu trúc deploy:
+
+sử dụng docker hub xây dựng 2 container: beobeotttt/frontend, beobeottt/backend
+
+cách vận hành:
+
+khi push code lên git thì nó sẽ rebuild lại để cập nhập trực tiếp trang đã được deploy theo cấu trúc CI/CP
+
+chức năng:
+
+thêm, xoá, sửa document
+thêm, xoá User
+
+2 actor: User(chỉ được xem document và thống kê), Admin(Thêm xoá sửa document, Thêm xoá User)
+
 
