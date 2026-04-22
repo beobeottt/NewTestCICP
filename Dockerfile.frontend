@@ -24,14 +24,6 @@ RUN echo 'server { \
         index index.html; \
         try_files $uri $uri/ /index.html; \
     } \
-    location /api/ { \
-        proxy_pass http://backend_api:5000/api/; \
-        proxy_set_header Host $host; \
-    } \
-    location /uploads/ { \
-        proxy_pass http://backend_api:5000/uploads/; \
-        proxy_set_header Host $host; \
-    } \
 }' > /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
