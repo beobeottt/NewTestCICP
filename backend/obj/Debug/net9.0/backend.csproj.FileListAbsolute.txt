@@ -142,3 +142,6 @@
 /Users/phamlong/Desktop/test-productcompany/backend/obj/Debug/net9.0/backend.pdb
 /Users/phamlong/Desktop/test-productcompany/backend/obj/Debug/net9.0/backend.genruntimeconfig.cache
 /Users/phamlong/Desktop/test-productcompany/backend/obj/Debug/net9.0/ref/backend.dll
+/Users/phamlong/Desktop/test-productcompany/backend/bin/Debug/net9.0/CloudinaryDotNet.dll
+/Users/phamlong/Desktop/test-productcompany/backend/bin/Debug/net9.0/Newtonsoft.Json.dll
+/Users/phamlong/Desktop/test-productcompany/backend/obj/Debug/net9.0/backend.sourcelink.json
