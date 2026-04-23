@@ -8,7 +8,7 @@ using System.Text;
 using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
-
+Console.WriteLine("DB: " + builder.Configuration.GetConnectionString("DefaultConnection"));
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
