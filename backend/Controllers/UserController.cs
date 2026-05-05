@@ -69,7 +69,7 @@ public class UserController : ControllerBase
         });
     }
 
-    [HttpPut("{id}")]
+    [HttpPatch("{id}")]
 
     public async Task<IActionResult> Update(string id, [FromBody] Update req)
     {
