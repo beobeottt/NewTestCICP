@@ -31,7 +31,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    [HttpPost("Register")]
+    [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] Register req)
     {
         try
