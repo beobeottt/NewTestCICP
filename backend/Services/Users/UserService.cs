@@ -21,7 +21,7 @@ public class UserService
         return await this.GetById(id);
     }
 
-    public async Task<User> Resgister(string username, string password, string role)
+    public async Task<User> Register(string username, string password, string role)
     {
         if(string.IsNullOrWhiteSpace(username))
         {
