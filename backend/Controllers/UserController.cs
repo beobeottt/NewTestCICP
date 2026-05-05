@@ -36,7 +36,7 @@ public class UserController : ControllerBase
     {
         try
         {
-            var user = await userService.Resgister(req.Username, req.Password, req.role);
+            var user = await userService.Register(req.Username, req.Password, req.role);
             return Ok(user);
         }
         catch(Exception ex)
