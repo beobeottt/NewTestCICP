@@ -115,6 +115,7 @@ export class UserManagerPage implements OnInit {
           );
           this.closeModal();
           this.cdr.detectChanges();
+          console.log(createData);
         },
         error: () => alert('Tạo mới thất bại')
       });
