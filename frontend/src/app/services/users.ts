@@ -47,7 +47,7 @@ export class UsersService {
 
   update(id: string, data: UpdateUserDto): Observable<UserDto>
   {
-    return this.http.put<UserDto>(`${this.apiUrl}/${id}`, data);
+    return this.http.patch<UserDto>(`${this.apiUrl}/${id}`, data);
   }
 }
 
