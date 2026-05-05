@@ -91,12 +91,14 @@ export class UserManagerPage implements OnInit {
     const rawValue = this.form.getRawValue();
 
     if (this.selectedUserId) {
-
+      // Data to be sent for Update
       const updateData: UpdateUserDto = {
         username: rawValue.username,
-        PasswordHash: rawValue.PasswordHash,
+        PasswordHash: rawValue.PasswordHash, // Ensure this matches your backend DTO property name
         role: rawValue.role
       };
+
+      console.log('Sending Update Request:', updateData);
 
       this.usersService.update(this.selectedUserId, updateData).subscribe({
         next: (updated) => {
@@ -104,20 +106,32 @@ export class UserManagerPage implements OnInit {
           this.closeModal();
           this.cdr.detectChanges();
         },
-        error: () => alert('Cập nhật thất bại')
+        error: (err) => {
+          console.error('Update Error:', err);
+          alert('Cập nhật thất bại');
+        }
       });
     } else {
+      // Data to be sent for Create
       const createData: CreateUserDto = rawValue;
+      
+      // LOG DATA TO BE SENT
+      console.log('--- CREATE USER DATA ---');
+      console.log(JSON.stringify(createData, null, 2)); 
+
       this.usersService.create(createData).subscribe({
         next: (created) => {
+          console.log('Successfully Created:', created);
           this.users = [...this.users, created].sort((a, b) => 
             a.username.localeCompare(b.username)
           );
           this.closeModal();
           this.cdr.detectChanges();
-          console.log(created);
         },
-        error: () => alert('Tạo mới thất bại')
+        error: (err) => {
+          console.error('Create Error Details:', err);
+          alert('Tạo mới thất bại');
+        }
       });
     }
   }
