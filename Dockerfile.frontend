@@ -1,4 +1,4 @@
-# Stage 1: Build Angular
+
 FROM node:20-alpine AS build
 WORKDIR /app
 
@@ -10,7 +10,6 @@ RUN pnpm install
 COPY frontend/ ./
 RUN pnpm build
 
-# Stage 2: Serve với Nginx
 FROM nginx:alpine
 
 RUN rm -rf /usr/share/nginx/html/*
