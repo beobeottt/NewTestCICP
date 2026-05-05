@@ -94,7 +94,7 @@ export class UserManagerPage implements OnInit {
       // Data to be sent for Update
       const updateData: UpdateUserDto = {
         username: rawValue.username,
-        PasswordHash: rawValue.PasswordHash, // Ensure this matches your backend DTO property name
+        password: rawValue.PasswordHash, // Ensure this matches your backend DTO property name
         role: rawValue.role
       };
 
@@ -112,28 +112,29 @@ export class UserManagerPage implements OnInit {
         }
       });
     } else {
-      // Data to be sent for Create
-      const createData: CreateUserDto = rawValue;
-      
-      // LOG DATA TO BE SENT
-      console.log('--- CREATE USER DATA ---');
-      console.log(JSON.stringify(createData, null, 2)); 
+    // Mapping for Create - This fixes the 400 Bad Request error
+    const createData = {
+      username: rawValue.username,
+      password: rawValue.PasswordHash, // The backend expects 'password', not 'PasswordHash'
+      role: rawValue.role
+    };
 
-      this.usersService.create(createData).subscribe({
-        next: (created) => {
-          console.log('Successfully Created:', created);
-          this.users = [...this.users, created].sort((a, b) => 
-            a.username.localeCompare(b.username)
-          );
-          this.closeModal();
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error('Create Error Details:', err);
-          alert('Tạo mới thất bại');
-        }
-      });
-    }
+    console.log('Sending to Backend:', createData);
+
+    this.usersService.create(createData).subscribe({
+      next: (created) => {
+        this.users = [...this.users, created].sort((a, b) => 
+          a.username.localeCompare(b.username)
+        );
+        this.closeModal();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Detailed Error:', err);
+        alert('Tạo mới thất bại: ' + (err.error?.title || 'Lỗi server'));
+      }
+    });
+  }
   }
 
   delete(user: UserDto): void {

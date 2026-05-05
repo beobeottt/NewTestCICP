@@ -14,12 +14,12 @@ export interface UserDto {
 export interface CreateUserDto {
   username: string;
   role: string;
-  PasswordHash: string;
+  password: string;
 }
 
 export interface UpdateUserDto{
   username: string;
-  PasswordHash: string;
+  password: string;
   role: string;
 }
 
@@ -40,7 +40,7 @@ export class UsersService {
   create(data: CreateUserDto): Observable<UserDto> {
     return this.http.post<UserDto>(`${this.apiUrl}/register`, {
       username: data.username,
-      PasswordHash: data.PasswordHash,
+      password: data.password,
       role: data.role,
     });
   }
