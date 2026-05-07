@@ -72,6 +72,7 @@ public async Task<IActionResult> CreateWithFile([FromForm] DocumentCreateWithFil
 [HttpPatch("{id}")]
 public async Task<IActionResult> Patch(string id, [FromForm] UpdateDocumentReq req)
 {
+    // console data to debug code, mis data
     Console.WriteLine("===== PATCH DEBUG =====");
     Console.WriteLine($"ID: {id}");
     Console.WriteLine($"Title: {req.title}");
@@ -103,7 +104,7 @@ public async Task<IActionResult> Patch(string id, [FromForm] UpdateDocumentReq r
     if (!string.IsNullOrEmpty(req.CreateBy))
         document.CreateBy = req.CreateBy;
 
-    // Upload file nếu có
+    // Upload file
     if (req.File is { Length: > 0 })
     {
         var url = await _cloudinaryService.UploadAsync(req.File);
